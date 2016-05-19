@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using WSimpleCommandExecutor.Models;
 
 namespace WSimpleCommandExecutor.Controllers
 {
@@ -15,24 +16,51 @@ namespace WSimpleCommandExecutor.Controllers
             _runner = tr;
         }
 
-        private object UID
+        private object UID => Session["UID"];
+
+        [HttpGet]
+        public ActionResult ReadyToStart()
         {
-            get
-            {
-                return Session["UID"];
-            }
-        }
-         
-        public ActionResult Index()
-        {
-           
             var task = _runner.GetBytKey(UID);
-            if (task != null&&task?.TaskStatus!= Status.created)
+            if (task != null)
             {
-                return RedirectToAction("ShowPrcess");
+                //exists for this session
+                if (task.TaskStatus != Status.running)
+                {
+                    //ready to start
+                    return View();
+                }
+                //else task.Start();
+
+                return RedirectToAction("ShowProces");
             }
             return View();
         }
+
+        [HttpPost]
+        public ActionResult ReadyToStart(StartTaskViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+                
+            var task = _runner.GetBytKey(UID);
+            if (task != null)
+            {
+                //exists for this session
+                if (task.TaskStatus != Status.running)
+                {
+                    task.Start(new Params() { Name = model.Name, Parameters = model.Params});
+                }
+            }
+            else
+            {
+                //create new task
+                
+                _runner.PushAndRun(UID, new Params() { Name = model.Name, Parameters = model.Params});
+            }
+            return RedirectToAction("ShowProces");
+        }
+
 
         [HttpGet]
         public JsonResult GetStatus()
@@ -41,30 +69,29 @@ namespace WSimpleCommandExecutor.Controllers
             return Json(new
             {
                 taskExists = task!=null,
-                status = task?.TaskStatus,
-                percentage = task?.Percentage
+                status = task?.TaskStatus.ToString(),
+                percentage = task?.Percentage,
+                rawdata = task?.ToString()
             }, JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet]
-        public ActionResult ShowPrcess()
+        public ActionResult ShowProces()
         {
             
             return View();
         }
-        public ActionResult About()
+
+        
+        public ActionResult BreakCurrrentSessionTask()
         {
-            _runner.PushAndRun(UID);
-            ViewBag.Message = "Your application description page.";
-
-            return View();
-        }
-
-        public ActionResult Contact()
-        {
-            ViewBag.Message = "Your contact page.";
-
-            return View();
+            var task = _runner.GetBytKey(UID);
+            if (task != null)
+            {
+                _runner.Terminate(UID);
+                //return RedirectToAction(nameof(ReadyToStart));
+            }
+            return RedirectToAction(nameof(ReadyToStart));
         }
     }
 }

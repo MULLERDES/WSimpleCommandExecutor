@@ -20,6 +20,9 @@ namespace ConcreteClassLibbrary
 
             }
         }
+
+        private string _params=string.Empty;
+
         public Status TaskStatus { get; set; } = Status.created;
 
         int MaxIteration = 0;
@@ -29,9 +32,10 @@ namespace ConcreteClassLibbrary
             Random r = new Random();
             MaxIteration =  r.Next(100, 1000);;
         }
-        public void Start()
+        public void Start(Params p)
         {
-            if (TaskStatus != Status.created)
+            _params = $"{p.Name}  {p.Parameters}";
+            if (TaskStatus == Status.running)
                 return;
             TaskStatus = Status.running;
             Task.Factory.StartNew(new Action(() => {
@@ -40,7 +44,7 @@ namespace ConcreteClassLibbrary
                 while(TaskStatus== Status.running )
                 {
                     Console.Write("tick" + MaxIteration.ToString());
-                    Thread.Sleep(100);
+                    Thread.Sleep(60);
 
                     if (it++==MaxIteration)
                     TaskStatus = Status.complete;
@@ -52,6 +56,10 @@ namespace ConcreteClassLibbrary
         {
             if (TaskStatus == Status.running)
                 TaskStatus = Status.aborted;
+        }
+        public override string ToString()
+        {
+            return $"{base.ToString()} {_params}";
         }
     }
 

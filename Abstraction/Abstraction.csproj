@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="ITask.cs" />
     <Compile Include="ITaskRunner.cs" />
+    <Compile Include="Params.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

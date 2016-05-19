@@ -13,8 +13,10 @@ namespace AutofacModules
     {
         protected override void Load(ContainerBuilder builder)
         {
+            var Logger =  NLog.LogManager.GetLogger("WSCE");
             base.Load(builder);
             builder.RegisterType<TaskRunner>().As<ITaskRunner<ITask>>();
+            Logger.Info("CEM_ok");
 
         }
     }

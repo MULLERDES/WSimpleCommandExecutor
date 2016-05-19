@@ -11,7 +11,7 @@ namespace Abstraction
     {
         Status TaskStatus { get; set; }
         int Percentage { get; }
-        void Start();
+        void Start(Params p);
         void Terminate();
 
     }

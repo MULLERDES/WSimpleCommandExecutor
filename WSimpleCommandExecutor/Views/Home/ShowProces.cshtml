@@ -1,0 +1,53 @@
+﻿
+@{
+    ViewBag.Title = "ShowPrcess";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>ShowPrcess</h2>
+<p id="pid"></p>
+<p id="p2id"></p>
+<p id="pReturnLink" hidden>@Html.ActionLink("Start this task again", "ReadyToStart", "Home")</p>
+<p>
+    @Html.ActionLink("abort", "BreakCurrrentSessionTask")
+</p>
+
+<div class="progress">
+    <div class="progress-bar progress-bar-striped active" role="progressbar"
+         aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">
+        
+    </div>
+</div>
+
+<script type="text/javascript">
+    var intervalHandler;
+
+    function callback(data){
+        //  alert(data);
+        if (data.taskExists === true) {
+            $('.progress-bar').css('width',data.percentage+'%');
+                $('#pid').text(data.percentage + ' ' + data.status + ' ' + data.rawdata);
+            
+        }
+        if (data.status == 'complete') {
+            clearInterval(intervalHandler);
+            $('#pReturnLink').show();
+        }
+    }
+    $(document).ready(function () {
+        sendReq();
+        intervalHandler = setInterval(sendReq, 333);
+
+
+    });
+
+
+    function sendReq() {
+        $.ajax({
+            url: '@Url.Action("GetStatus","Home")',
+            dataType: 'json',
+            success: callback
+        });
+    }
+
+</script>

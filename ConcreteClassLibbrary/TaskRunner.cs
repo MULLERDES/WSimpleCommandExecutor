@@ -21,11 +21,11 @@ namespace ConcreteClassLibbrary
             return _taskList.ContainsKey(key?.ToString()) ? _taskList[key?.ToString()] : null;
         }
 
-        public void PushAndRun(object key)
+        public void PushAndRun(object key, Params p)
         {
             FakeTask t = new FakeTask();
             _taskList.Add(key?.ToString(), t);
-            t.Start();
+            t.Start(p);
         }
 
         public void Terminate(object key)
